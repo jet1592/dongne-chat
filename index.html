@@ -146,4 +146,12 @@ function send(){
 socket.on("msg",m=>{if(joined&&m&&typeof m.t==="string")bubble({n:String(m.n).slice(0,12),t:m.t.slice(0,200),s:m.s})});
 socket.on("count",c=>{$("who").textContent="지금 "+c+"명 접속 중"});
 socket.on("disconnect",()=>{if(joined)sys("연결이 끊겼어요. 다시 연결 중…")});
-socket.on("connect",()=>{if(joi
+socket.on("connect",()=>{if(joined){const l=$("rname").textContent;socket.emit("join",l,res=>{if(res&&res.ok){myId=res.id;sys("다시 연결됐어요.")}})}});
+$("go1").onclick=()=>enter(s1.value+" "+s2.value+" "+s3.value.trim());
+$("go2").onclick=()=>enter($("custom").value);
+$("back").onclick=leave;
+$("send").onclick=send;
+$("msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)send()});
+</script>
+</body>
+</html>
