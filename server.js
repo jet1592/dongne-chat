@@ -12,6 +12,22 @@ app.get("/healthz", (req, res) => res.send("ok"));
 
 const BAD = /시발|씨발|병신/g; // 필요하면 단어를 더 추가하세요
 
+const hist = new Map(); // 방 이름 -> 최근 메시지 (서버 메모리에만 저장)
+function pushHist(room, m) {
+  let a = hist.get(room);
+  if (!a) {
+    a = [];
+    hist.set(room, a);
+    if (hist.size > 3000) hist.delete(hist.keys().next().value);
+  }
+  a.push(m);
+  if (a.length > 50) a.shift();
+}
+function getHist(room) {
+  const cut = Date.now() - 864e5; // 24시간
+  return (hist.get(room) || []).filter((m) => m.ts > cut).map((m) => ({ n: m.n, t: m.t }));
+}
+
 function cleanRegion(raw) {
   if (typeof raw !== "string") return null;
   const s = raw.replace(/\s+/g, " ").trim().slice(0, 40);
@@ -41,7 +57,7 @@ io.on("connection", (socket) => {
     room = "r:" + name;
     socket.join(room);
     sendCount(room);
-    if (ack) ack({ ok: true, nick, id: socket.id });
+    if (ack) ack({ ok: true, nick, id: socket.id, hist: getHist(room) });
   });
 
   socket.on("msg", (t) => {
@@ -51,6 +67,7 @@ io.on("connection", (socket) => {
     last = now;
     t = t.trim().slice(0, 200).replace(BAD, "**");
     if (!t) return;
+    pushHist(room, { n: nick, t, ts: now });
     io.to(room).emit("msg", { n: nick, t, s: socket.id });
   });
 
