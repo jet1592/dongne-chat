@@ -37,24 +37,39 @@ button:disabled{opacity:.45}
 .sys{align-self:center;color:var(--sub);font-size:13px;text-align:center}
 .bar{display:flex;gap:8px;padding:10px 0 12px;border-top:1px solid var(--bd)}
 .bar input{flex:1}
+:root{--pb:#111;--pbx:#fff;--line:#e6e6e6}
+@media (prefers-color-scheme:dark){:root{--pb:#f2f2f2;--pbx:#111;--line:#2c2f36}}
+#home{padding-top:12vh;padding-bottom:40px}
+#home h1{font-size:30px;font-weight:700;letter-spacing:-.5px;margin:0 0 8px}
+#home p.sub{font-size:15px;line-height:1.5;margin:0 0 32px}
+#home .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#home label{margin:18px 0 6px}
+#home select,#home input[type=text]{background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 2px}
+#home button{background:var(--pb);color:var(--pbx);border-radius:12px;padding:15px;margin-top:28px;width:100%}
+#home details{margin-top:28px;border-top:1px solid var(--line);padding-top:16px}
+#home summary{color:var(--sub);font-size:14px;cursor:pointer}
+#home details button{background:transparent;color:var(--tx);border:1px solid var(--line);margin-top:16px}
+#home .foot{font-size:12px;color:var(--sub);margin:36px 0 0}
 </style>
 </head>
 <body>
 <div class="wrap" id="home">
-  <h1>💬 동네 익명 채팅</h1>
-  <p class="sub">지역을 고르면 지금 그 방에 있는 사람들과 익명으로 실시간 대화할 수 있어요.</p>
-  <div class="card">
-    <label>시/도</label><select id="s1"></select>
-    <label>시/군/구</label><select id="s2"></select>
-    <label>읍/면/동 (선택 · 예: 역삼동)</label><input type="text" id="s3" maxlength="15" placeholder="비워두면 시/군/구 전체 방">
-    <button class="full" id="go1">이 지역 채팅방 입장</button>
+  <h1>동네 익명 채팅</h1>
+  <p class="sub">우리 동네 사람들과<br>지금 바로, 익명으로.</p>
+  <div class="row">
+    <div><label>시/도</label><select id="s1"></select></div>
+    <div><label>시/군/구</label><select id="s2"></select></div>
   </div>
-  <div class="card">
-    <label>목록에 없는 지역은 직접 입력 (예: 경북 영양군 청기면)</label>
-    <input type="text" id="custom" maxlength="30" placeholder="시/도 시/군/구 읍/면/동">
-    <button class="full" id="go2">직접 입력한 지역으로 입장</button>
-  </div>
-  <p class="sub">최근 대화 50개는 24시간 동안 보여요. 욕설, 도배, 불법·유해 내용은 금지예요.</p>
+  <label>읍/면/동 (선택)</label>
+  <input type="text" id="s3" maxlength="15" placeholder="예: 역삼동 · 비우면 시/군/구 전체">
+  <button id="go1">입장하기</button>
+  <details>
+    <summary>목록에 없는 지역</summary>
+    <label>직접 입력</label>
+    <input type="text" id="custom" maxlength="30" placeholder="예: 경북 영양군 청기면">
+    <button id="go2">이 지역으로 입장</button>
+  </details>
+  <p class="foot">최근 대화 50개는 24시간 동안 보여요. 욕설, 도배, 불법·유해 내용은 금지예요.</p>
 </div>
 
 <div class="wrap" id="chat">
@@ -131,12 +146,4 @@ function send(){
 socket.on("msg",m=>{if(joined&&m&&typeof m.t==="string")bubble({n:String(m.n).slice(0,12),t:m.t.slice(0,200),s:m.s})});
 socket.on("count",c=>{$("who").textContent="지금 "+c+"명 접속 중"});
 socket.on("disconnect",()=>{if(joined)sys("연결이 끊겼어요. 다시 연결 중…")});
-socket.on("connect",()=>{if(joined){const l=$("rname").textContent;socket.emit("join",l,res=>{if(res&&res.ok){myId=res.id;sys("다시 연결됐어요.")}})}});
-$("go1").onclick=()=>enter(s1.value+" "+s2.value+" "+s3.value.trim());
-$("go2").onclick=()=>enter($("custom").value);
-$("back").onclick=leave;
-$("send").onclick=send;
-$("msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)send()});
-</script>
-</body>
-</html>
+socket.on("connect",()=>{if(joi
